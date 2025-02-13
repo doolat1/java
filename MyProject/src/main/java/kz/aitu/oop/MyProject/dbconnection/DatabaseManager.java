@@ -1,10 +1,8 @@
-
 package kz.aitu.oop.MyProject.dbconnection;
 
 import kz.aitu.oop.MyProject.entities.Customer;
-
 import java.sql.*;
-        import java.util.ArrayList;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseManager {
@@ -31,7 +29,7 @@ public class DatabaseManager {
     }
 
     public static int createCustomer(String name, String email) {
-        String sql = "INSERT INTO customers (name, email) VALUES (?, ?) RETURNING \"idC\"";
+        String sql = "INSERT INTO customers (name, email) VALUES (?, ?) RETURNING idC";
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, name);
@@ -45,8 +43,6 @@ public class DatabaseManager {
         }
         return -1;
     }
-
-
 
     public static List<Customer> getAllCustomers() {
         List<Customer> customers = new ArrayList<>();
@@ -69,14 +65,31 @@ public class DatabaseManager {
         return customers;
     }
 
-    public static void deleteCustomer(int id) {
+    public static boolean updateCustomer(int id, String name, String email) {
+        String sql = "UPDATE customers SET name = ?, email = ? WHERE idC = ?";
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, name);
+            pstmt.setString(2, email);
+            pstmt.setInt(3, id);
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean deleteCustomer(int id) {
         String sql = "DELETE FROM customers WHERE idC = ?";
         try (Connection conn = connect();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, id);
-            pstmt.executeUpdate();
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
     }
 }
